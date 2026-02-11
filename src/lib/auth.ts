@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.API_URL || 'kue-platform.vercel.app';
+const API_BASE_URL = import.meta.env.API_URL;
 
 // Token management
 export const setTokens = (accessToken: string, refreshToken: string) => {
