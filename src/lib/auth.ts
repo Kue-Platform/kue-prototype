@@ -90,6 +90,22 @@ export const verifyOTP = async (email: string, code: string): Promise<VerifyOTPR
     return data;
 };
 
+export const createSession = async (accessToken: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/session`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ access_token: accessToken }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to create session');
+    }
+
+    return response.json();
+};
+
 // API utility with authentication
 export const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     const accessToken = getAccessToken();
@@ -102,6 +118,7 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
     const response = await fetch(url, {
         ...options,
         headers,
+        credentials: 'include',
     });
 
     // Handle 401 Unauthorized - redirect to login
@@ -112,4 +129,23 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
     }
 
     return response;
+};
+
+export const initiateGoogleSignIn = async (): Promise<{ url: string }> => {
+    // Determine the current origin to use as the redirect URL
+    const redirectTo = `${window.location.origin}/auth/callback`;
+
+    // Call the backend to get the Google OAuth URL with the redirect parameter
+    const response = await fetch(`${API_BASE_URL}/auth/signin/google?redirectTo=${redirectTo}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to initiate Google Sign-In');
+    }
+
+    return response.json();
 };

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { sendOTP, verifyOTP, setTokens } from "@/lib/auth";
+import { sendOTP, verifyOTP, setTokens, initiateGoogleSignIn } from "@/lib/auth";
 
 type AuthStep = "email" | "verification";
 
@@ -67,18 +67,22 @@ const Login = () => {
         }
     };
 
-    const handleGoogleSignIn = () => {
+    const handleGoogleSignIn = async () => {
         setIsLoading(true);
 
-        // TODO: Replace with actual Google OAuth implementation
-        setTimeout(() => {
+        try {
+            const { url } = await initiateGoogleSignIn();
+            // Redirect to the URL returned by the backend
+            window.location.href = url;
+        } catch (error) {
+            console.error(error);
             toast({
-                title: "Google Sign-In",
-                description: "Google OAuth integration pending - this is a prototype.",
+                title: "Error",
+                description: "Failed to initiate Google Sign-In. Please try again.",
+                variant: "destructive",
             });
             setIsLoading(false);
-            navigate("/");
-        }, 1000);
+        }
     };
 
     const handleBackToEmail = () => {
